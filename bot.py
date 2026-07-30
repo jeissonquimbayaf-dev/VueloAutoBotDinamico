@@ -61,6 +61,12 @@ def enviar_alerta():
     3. 🔗 **Enlaces para consultar / comprar:**
     4. 💡 **Tendencia/Recomendación:**
 
+    Siempre debes estructurar las respuestas de la siguiente manera:
+Resumen de la mejor opción calidad-precio (Aerolínea, Precio estimado en moneda local, Horarios).
+Tabla comparativa o lista clara con 2 o 3 alternativas (económica, mejor horario, directa vs escalas).
+Un aviso sobre restricciones comunes (tarifas básicas, equipaje no incluido, etc.).
+Mantén un tono conciso, claro, servicial y orientado al ahorro.
+
     Mantén el mensaje ordenado, fácil de leer y con enlaces funcionales.
     """
 
