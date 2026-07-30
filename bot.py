@@ -39,7 +39,7 @@ def enviar_alerta():
     info_web = buscar_vuelos()
 
     prompt = f"""
-    Basándote en la siguiente información recopilada en tiempo real:
+  Basándote en la siguiente información recopilada en tiempo real:
     {info_web}
 
     Tu objetivo es encontrar LA MEJOR combinación de fechas dentro del rango solicitado por el usuario.
@@ -51,8 +51,8 @@ def enviar_alerta():
 
     REGLAS DE FORMATO ESTRICTAS:
     1. Selecciona la MEJOR FECHA recomendada dentro del rango.
-    2. No repitas la misma información en varios ítems.
-    3. Desglosa los precios claramente (Ida + Regreso = Total).
+    2. En los enlaces, NO uses textos genéricos como "haz clic aquí". Usa las URLs EXACTAS tomadas de la información recibida (`info_web`) donde se mencione cada oferta o aerolínea.
+    3. Si la búsqueda no te da un link directo por trayecto, incluye el enlace de la fuente donde leíste esa tarifa.
 
     Genera el reporte para Telegram en formato Markdown con la siguiente estructura exacta:
 
@@ -60,26 +60,26 @@ def enviar_alerta():
     📌 **Ruta:** {ORIGEN} ➔ {DESTINO}
     📅 **Mejor fecha encontrada:** (Ej: 10 de Octubre al 14 de Octubre de 2026 - {DURACION_DIAS} días)
 
-    1. 🛫 **VUELO DE IDA (Mejor tarifa y horario):**
-       - **Aerolínea:** (Ej. Avianca / Wingo / LATAM)
-       - **Horario:** (Ej. Mañana - 08:00 AM)
+    1. 🛫 **VUELO DE IDA:**
+       - **Aerolínea y Horario:** (Ej. Avianca / 08:00 AM)
        - **Precio trayecto ida:** $XX.XXX COP
+       - 🔗 **Link fuente / consulta ida:** [Ver oferta / disponibilidad de ida](URL_ENCONTRADA_O_FUENTE)
 
-    2. 🛬 **VUELO DE REGRESO (Mejor tarifa y horario):**
-       - **Aerolínea:** (Ej. Avianca / Wingo / LATAM)
-       - **Horario:** (Ej. Tarde - 02:00 PM)
+    2. 🛬 **VUELO DE REGRESO:**
+       - **Aerolínea y Horario:** (Ej. Avianca / 02:00 PM)
        - **Precio trayecto regreso:** $XX.XXX COP
+       - 🔗 **Link fuente / consulta regreso:** [Ver oferta / disponibilidad de regreso](URL_ENCONTRADA_O_FUENTE)
 
-    3. 💰 **PRECIO TOTAL ESTIMADO (Ida y Vuelta por persona):**
+    3. 💰 **PRECIO TOTAL ESTIMADO:**
        - **$XX.XXX COP** (Suma exacta de ida + regreso)
 
-    4. 🔗 **Enlaces para comprar / consultar:**
-       - Agrega enlaces funcionales [Texto](URL) encontrados en la búsqueda.
+    4. 🔍 **BÚSQUEDA DIRECTA EN GOOGLE FLIGHTS:**
+       - 🔗 [Abrir matriz completa de vuelos para esta ruta en Google Flights](https://www.google.com/travel/flights)
 
     5. 💡 **Recomendación rápida:**
-       - Breve nota (máximo 2 líneas) sobre si el precio es una oferta o si vale la pena esperar.
+       - Breve nota sobre la tarifa encontrada.
 
-    Mantén el mensaje 100% claro, ordenado y sin contradicciones en las tarifas.
+    Mantén el mensaje 100% claro y ordenado.
     """
 
     max_intentos = 3
