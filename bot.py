@@ -82,7 +82,7 @@ def enviar_alerta():
     Mantén el mensaje 100% claro, ordenado y sin contradicciones en las tarifas.
     """
 
-    modelos = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-1.5-flash']
+    modelos = ['gemini-3.5-flash-lite', 'gemini-3.5-flash']
     max_intentos = 3
 
     for modelo in modelos:
