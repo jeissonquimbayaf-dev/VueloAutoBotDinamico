@@ -1,28 +1,34 @@
-name: Buscador de Vuelos Personalizado
+name: Buscador y Alerta Diaria de Vuelos
 
 on:
+  schedule:
+    - cron: '0 12 * * *'  # Todos los días a las 7:00 AM Colombia (12:00 UTC)
   workflow_dispatch:
     inputs:
       origen:
-        description: 'Ciudad u Origen (Ej: Bogotá, BOG, MDE)'
-        required: true
+        description: 'Ciudad de origen'
+        required: false
         default: 'Bogotá (BOG)'
       destino:
-        description: 'Ciudad o Destino (Ej: Santa Marta, SMR, CTG)'
-        required: true
+        description: 'Ciudad de destino'
+        required: false
         default: 'Santa Marta (SMR)'
       fecha_inicio:
-        description: 'Rango Inicio (Ej: 15 de agosto 2026 / primera semana septiembre)'
-        required: true
+        description: 'Rango inicio'
+        required: false
         default: 'mediados de agosto de 2026'
       fecha_fin:
-        description: 'Rango Fin (Ej: 30 de agosto 2026)'
-        required: true
+        description: 'Rango fin'
+        required: false
         default: 'mediados de septiembre de 2026'
       duracion_dias:
-        description: 'Días de duración del viaje'
-        required: true
+        description: 'Días de estadía'
+        required: false
         default: '4'
+      actualizar_diario:
+        description: 'Guardar como alerta diaria'
+        required: false
+        default: 'true'
 
 jobs:
   run-bot:
@@ -41,14 +47,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ejecutar script dinámico
+      - name: Ejecutar script de búsqueda
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          ORIGEN: ${{ github.event.inputs.origen }}
-          DESTINO: ${{ github.event.inputs.destino }}
-          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio }}
-          FECHA_FIN: ${{ github.event.inputs.fecha_fin }}
-          DURACION_DIAS: ${{ github.event.inputs.duracion_dias }}
+          # Toma el valor enviado desde la Web App o los valores guardados por defecto para el cron diario
+          ORIGEN: ${{ github.event.inputs.origen || vars.LAST_ORIGEN || 'Bogotá (BOG)' }}
+          DESTINO: ${{ github.event.inputs.destino || vars.LAST_DESTINO || 'Santa Marta (SMR)' }}
+          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio || vars.LAST_FECHA_INICIO || 'mediados de agosto de 2026' }}
+          FECHA_FIN: ${{ github.event.inputs.fecha_fin || vars.LAST_FECHA_FIN || 'mediados de septiembre de 2026' }}
+          DURACION_DIAS: ${{ github.event.inputs.duracion_dias || vars.LAST_DURACION_DIAS || '4' }}
         run: python bot.py
