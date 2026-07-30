@@ -12,15 +12,15 @@ on:
       destino:
         description: 'Ciudad de destino'
         required: false
-        default: 'Santa Marta (SMR)'
+        default: ''
       fecha_inicio:
         description: 'Rango inicio'
         required: false
-        default: 'mediados de agosto de 2026'
+        default: ''
       fecha_fin:
         description: 'Rango fin'
         required: false
-        default: 'mediados de septiembre de 2026'
+        default: ''
       duracion_dias:
         description: 'Días de estadía'
         required: false
