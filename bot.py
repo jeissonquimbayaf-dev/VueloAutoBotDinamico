@@ -82,37 +82,33 @@ def enviar_alerta():
     Mantén el mensaje 100% claro, ordenado y sin contradicciones en las tarifas.
     """
 
-    modelos = ['gemini-3.5-flash-lite', 'gemini-3.5-flash']
     max_intentos = 3
+    for intento in range(max_intentos):
+        try:
+            response = client.models.generate_content(
+                model='gemini-3.5-flash-lite',
+                contents=prompt
+            )
+            mensaje = response.text
 
-    for modelo in modelos:
-        print(f"Intentando generar respuesta con modelo: {modelo}")
-        for intento in range(max_intentos):
-            try:
-                response = client.models.generate_content(
-                    model=modelo,
-                    contents=prompt
-                )
-                mensaje = response.text
+            url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+            payload = {
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": mensaje,
+                "parse_mode": "Markdown",
+                "disable_web_page_preview": False
+            }
+            r = requests.post(url, json=payload)
+            r.raise_for_status()
+            print("Mensaje enviado con éxito a Telegram.")
+            break
 
-                url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-                payload = {
-                    "chat_id": TELEGRAM_CHAT_ID,
-                    "text": mensaje,
-                    "parse_mode": "Markdown",
-                    "disable_web_page_preview": False
-                }
-                r = requests.post(url, json=payload)
-                r.raise_for_status()
-                print("Mensaje enviado con éxito a Telegram.")
-                return
+        except Exception as e:
+            print(f"Intento {intento + 1} falló con error: {e}")
+            if "429" in str(e) and intento < max_intentos - 1:
+                time.sleep(20)
+            else:
+                raise e
 
-            except Exception as e:
-                err_msg = str(e)
-                print(f"Intento {intento + 1} con {modelo} falló: {err_msg}")
-                if ("503" in err_msg or "429" in err_msg) and intento < max_intentos - 1:
-                    time.sleep(15)
-                else:
-                    break
-
-    raise Exception("No se pudo completar la solicitud.")
+if __name__ == "__main__":
+    enviar_alerta()
