@@ -42,65 +42,77 @@ def enviar_alerta():
     Basándote en la siguiente información recopilada en tiempo real:
     {info_web}
 
-    Tu objetivo es analizar ofertas de vuelo con los siguientes parámetros especificados por el usuario:
+    Tu objetivo es encontrar LA MEJOR combinación de fechas dentro del rango solicitado por el usuario.
+
+    Parámetros de búsqueda:
     - Ruta: {ORIGEN} -> {DESTINO} -> {ORIGEN}
-    - Rango de fechas buscado: Entre {FECHA_INICIO} y {FECHA_FIN}
+    - Rango de fechas permitido: Entre {FECHA_INICIO} y {FECHA_FIN}
     - Duración del viaje: Aproximadamente {DURACION_DIAS} días.
 
-    Genera un reporte conciso para Telegram en formato Markdown con la siguiente estructura exacta:
+    REGLAS DE FORMATO ESTRICTAS:
+    1. Selecciona la MEJOR FECHA recomendada dentro del rango.
+    2. No repitas la misma información en varios ítems.
+    3. Desglosa los precios claramente (Ida + Regreso = Total).
+
+    Genera el reporte para Telegram en formato Markdown con la siguiente estructura exacta:
 
     🚨 **REPORTE PERSONALIZADO DE VUELOS** 🚨
     📌 **Ruta:** {ORIGEN} ➔ {DESTINO}
+    📅 **Mejor fecha encontrada:** (Ej: 10 de Octubre al 14 de Octubre de 2026 - {DURACION_DIAS} días)
 
-    1. ✈️ **Opción más económica encontrada:**
-       - **Fechas sugeridas:** (Específica las fechas exactas o estimadas dentro de la ventana de {FECHA_INICIO} a {FECHA_FIN} para un viaje de {DURACION_DIAS} días)
-       - **Horarios:** (Salida y regreso estimados o franja horaria)
-       - **Aerolínea y Precio:** (Aerolínea - Precio aprox. en COP)
+    1. 🛫 **VUELO DE IDA (Mejor tarifa y horario):**
+       - **Aerolínea:** (Ej. Avianca / Wingo / LATAM)
+       - **Horario:** (Ej. Mañana - 08:00 AM)
+       - **Precio trayecto ida:** $XX.XXX COP
 
-    2. 📊 **Resumen de tarifas y horarios alternativos:**
-    La mejor tarifa y precio y horario del mejor precio del vuelo de ida (con la aerolínea conseguida)
-    La mejor tarifa y precio horario del mejor precio del vuelo de regreso (con la aerolínea conseguida)
+    2. 🛬 **VUELO DE REGRESO (Mejor tarifa y horario):**
+       - **Aerolínea:** (Ej. Avianca / Wingo / LATAM)
+       - **Horario:** (Ej. Tarde - 02:00 PM)
+       - **Precio trayecto regreso:** $XX.XXX COP
 
-       
-    3. 🔗 **Enlaces para consultar / comprar:**
-    4. Un aviso sobre restricciones comunes (tarifas básicas, equipaje no incluido, etc.).
-    5. 💡 **Tendencia/Recomendación:**
-    Recomienda si este es el mejor momento para comprar, o mejor esperar promociones de otro día.
-    Recomienda si es un bueno momento/tendencia/recomendado para ir según clima, precios o afluenia de personas. 
+    3. 💰 **PRECIO TOTAL ESTIMADO (Ida y Vuelta por persona):**
+       - **$XX.XXX COP** (Suma exacta de ida + regreso)
 
+    4. 🔗 **Enlaces para comprar / consultar:**
+       - Agrega enlaces funcionales [Texto](URL) encontrados en la búsqueda.
 
-Mantén un tono conciso, claro, servicial y orientado al ahorro.
+    5. 💡 **Recomendación rápida:**
+       - Breve nota (máximo 2 líneas) sobre si el precio es una oferta o si vale la pena esperar.
 
-    Mantén el mensaje ordenado, fácil de leer y con enlaces funcionales.
+    Mantén el mensaje 100% claro, ordenado y sin contradicciones en las tarifas.
     """
 
+    modelos = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-1.5-flash']
     max_intentos = 3
-    for intento in range(max_intentos):
-        try:
-            response = client.models.generate_content(
-                model='gemini-3.5-flash-lite',
-                contents=prompt
-            )
-            mensaje = response.text
 
-            url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-            payload = {
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": mensaje,
-                "parse_mode": "Markdown",
-                "disable_web_page_preview": False
-            }
-            r = requests.post(url, json=payload)
-            r.raise_for_status()
-            print("Mensaje enviado con éxito a Telegram.")
-            break
+    for modelo in modelos:
+        print(f"Intentando generar respuesta con modelo: {modelo}")
+        for intento in range(max_intentos):
+            try:
+                response = client.models.generate_content(
+                    model=modelo,
+                    contents=prompt
+                )
+                mensaje = response.text
 
-        except Exception as e:
-            print(f"Intento {intento + 1} falló con error: {e}")
-            if "429" in str(e) and intento < max_intentos - 1:
-                time.sleep(20)
-            else:
-                raise e
+                url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+                payload = {
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "text": mensaje,
+                    "parse_mode": "Markdown",
+                    "disable_web_page_preview": False
+                }
+                r = requests.post(url, json=payload)
+                r.raise_for_status()
+                print("Mensaje enviado con éxito a Telegram.")
+                return
 
-if __name__ == "__main__":
-    enviar_alerta()
+            except Exception as e:
+                err_msg = str(e)
+                print(f"Intento {intento + 1} con {modelo} falló: {err_msg}")
+                if ("503" in err_msg or "429" in err_msg) and intento < max_intentos - 1:
+                    time.sleep(15)
+                else:
+                    break
+
+    raise Exception("No se pudo completar la solicitud.")
