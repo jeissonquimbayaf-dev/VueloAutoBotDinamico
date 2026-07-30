@@ -58,6 +58,11 @@ def enviar_alerta():
        - **Aerolínea y Precio:** (Aerolínea - Precio aprox. en COP)
 
     2. 📊 **Resumen de tarifas y horarios alternativos:**
+    La mejor tarifa y horario del vuelo de ida (con la aerolínea conseguida)
+    La mejor tarifa y horario del vuelo de regreso (con la aerolínea conseguida)
+
+    Si la aerolínea es diferente, poner también la mejor tarifa y horario en una sola aerolínea. 
+    
     3. 🔗 **Enlaces para consultar / comprar:**
     4. 💡 **Tendencia/Recomendación:**
 
