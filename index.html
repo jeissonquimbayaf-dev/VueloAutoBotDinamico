@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscador de Vuelos Personalizado</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
+    h2 { margin-top: 0; color: #1a202c; text-align: center; }
+    label { font-size: 14px; font-weight: 600; color: #4a5568; display: block; margin-top: 12px; margin-bottom: 4px; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; }
+    button { width: 100%; margin-top: 20px; padding: 12px; background-color: #3182ce; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; transition: background 0.2s; }
+    button:hover { background-color: #2b6cb0; }
+    #status { margin-top: 15px; font-size: 14px; text-align: center; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>✈️ Buscar Vuelos</h2>
+    
+    <label for="pat">GitHub Access Token (PAT):</label>
+    <input type="password" id="pat" placeholder="ghp_xxxxxxxxxxxx" />
+
+    <label for="origen">Origen:</label>
+    <input type="text" id="origen" value="Bogotá (BOG)" />
+
+    <label for="destino">Destino:</label>
+    <input type="text" id="destino" value="Santa Marta (SMR)" />
+
+    <label for="fecha_inicio">Rango Inicio:</label>
+    <input type="text" id="fecha_inicio" value="mediados de agosto de 2026" />
+
+    <label for="fecha_fin">Rango Fin:</label>
+    <input type="text" id="fecha_fin" value="mediados de septiembre de 2026" />
+
+    <label for="duracion">Días de estadía:</label>
+    <input type="text" id="duracion" value="4" />
+
+    <button onclick="ejecutarWorkflow()">🚀 Buscar y Enviar a Telegram</button>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    // Recupera automáticamente el token guardado en el navegador para no escribirlo siempre
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedToken = localStorage.getItem("github_pat");
+      if (savedToken) document.getElementById("pat").value = savedToken;
+    });
+
+    async function ejecutarWorkflow() {
+      const token = document.getElementById("pat").value.trim();
+      const statusDiv = document.getElementById("status");
+
+      if (!token) {
+        statusDiv.style.color = "red";
+        statusDiv.innerText = "⚠️ Por favor ingresa tu GitHub Personal Access Token.";
+        return;
+      }
+
+      // Guardar token en el almacenamiento local del navegador
+      localStorage.setItem("github_pat", token);
+
+      
+      const usuarioGithub = "jeissonquimbayaf-dev"; 
+      const repo = "VueloAutoBotDinamico"; 
+      const workflowFile = "main.yml";
+
+      const url = `https://api.github.com/repos/${usuarioGithub}/${repo}/actions/workflows/${workflowFile}/dispatches`;
+
+      const payload = {
+        ref: "main",
+        inputs: {
+          origen: document.getElementById("origen").value,
+          destino: document.getElementById("destino").value,
+          fecha_inicio: document.getElementById("fecha_inicio").value,
+          fecha_fin: document.getElementById("fecha_fin").value,
+          duracion_dias: document.getElementById("duracion").value
+        }
+      };
+
+      statusDiv.style.color = "#3182ce";
+      statusDiv.innerText = "⏳ Solicitando búsqueda...";
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Authorization": `token ${token}`,
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.status === 204) {
+          statusDiv.style.color = "green";
+          statusDiv.innerText = "✅ ¡Búsqueda iniciada! Revisa Telegram en 1-2 minutos.";
+        } else {
+          const err = await response.json();
+          statusDiv.style.color = "red";
+          statusDiv.innerText = `❌ Error: ${err.message || 'Verifica el usuario/token'}`;
+        }
+      } catch (e) {
+        statusDiv.style.color = "red";
+        statusDiv.innerText = `❌ Error de conexión: ${e.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
