@@ -65,6 +65,8 @@ def enviar_alerta():
     3. 🔗 **Enlaces para consultar / comprar:**
     4. Un aviso sobre restricciones comunes (tarifas básicas, equipaje no incluido, etc.).
     5. 💡 **Tendencia/Recomendación:**
+    Recomienda si este es el mejor momento para comprar, o mejor esperar promociones de otro día.
+    Recomienda si es un bueno momento/tendencia/recomendado para ir según clima, precios o afluenia de personas. 
 
 
 Mantén un tono conciso, claro, servicial y orientado al ahorro.
