@@ -1,0 +1,54 @@
+name: Buscador de Vuelos Personalizado
+
+on:
+  workflow_dispatch:
+    inputs:
+      origen:
+        description: 'Ciudad u Origen (Ej: Bogotá, BOG, MDE)'
+        required: true
+        default: 'Bogotá (BOG)'
+      destino:
+        description: 'Ciudad o Destino (Ej: Santa Marta, SMR, CTG)'
+        required: true
+        default: 'Santa Marta (SMR)'
+      fecha_inicio:
+        description: 'Rango Inicio (Ej: 15 de agosto 2026 / primera semana septiembre)'
+        required: true
+        default: 'mediados de agosto de 2026'
+      fecha_fin:
+        description: 'Rango Fin (Ej: 30 de agosto 2026)'
+        required: true
+        default: 'mediados de septiembre de 2026'
+      duracion_dias:
+        description: 'Días de duración del viaje'
+        required: true
+        default: '4'
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar librerías
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ejecutar script dinámico
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ORIGEN: ${{ github.event.inputs.origen }}
+          DESTINO: ${{ github.event.inputs.destino }}
+          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio }}
+          FECHA_FIN: ${{ github.event.inputs.fecha_fin }}
+          DURACION_DIAS: ${{ github.event.inputs.duracion_dias }}
+        run: python bot.py
