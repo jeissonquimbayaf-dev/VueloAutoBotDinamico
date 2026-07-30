@@ -58,18 +58,16 @@ def enviar_alerta():
        - **Aerolínea y Precio:** (Aerolínea - Precio aprox. en COP)
 
     2. 📊 **Resumen de tarifas y horarios alternativos:**
-    La mejor tarifa y horario del vuelo de ida (con la aerolínea conseguida)
-    La mejor tarifa y horario del vuelo de regreso (con la aerolínea conseguida)
+    La mejor tarifa y precio y horario del vuelo de ida (con la aerolínea conseguida)
+    La mejor tarifa y precio horario del vuelo de regreso (con la aerolínea conseguida)
 
     Si la aerolínea es diferente, poner también la mejor tarifa y horario en una sola aerolínea. 
     
     3. 🔗 **Enlaces para consultar / comprar:**
-    4. 💡 **Tendencia/Recomendación:**
+    4. Un aviso sobre restricciones comunes (tarifas básicas, equipaje no incluido, etc.).
+    5. 💡 **Tendencia/Recomendación:**
 
-    Siempre debes estructurar las respuestas de la siguiente manera:
-Resumen de la mejor opción calidad-precio (Aerolínea, Precio estimado en moneda local, Horarios).
-Tabla comparativa o lista clara con 2 o 3 alternativas (económica, mejor horario, directa vs escalas).
-Un aviso sobre restricciones comunes (tarifas básicas, equipaje no incluido, etc.).
+
 Mantén un tono conciso, claro, servicial y orientado al ahorro.
 
     Mantén el mensaje ordenado, fácil de leer y con enlaces funcionales.
