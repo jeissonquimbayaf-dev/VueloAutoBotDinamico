@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buscador de Vuelos Personalizado</title>
+  <title>Buscador y Alerta de Vuelos</title>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
     h2 { margin-top: 0; color: #1a202c; text-align: center; }
     label { font-size: 14px; font-weight: 600; color: #4a5568; display: block; margin-top: 12px; margin-bottom: 4px; }
-    input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; }
+    .checkbox-container { display: flex; align-items: center; margin-top: 18px; background: #ebf8ff; padding: 12px; border-radius: 8px; border: 1px solid #bee3f8; }
+    .checkbox-container input { width: 18px; height: 18px; margin-right: 10px; cursor: pointer; }
+    .checkbox-container label { margin: 0; color: #2b6cb0; font-size: 13px; cursor: pointer; }
     button { width: 100%; margin-top: 20px; padding: 12px; background-color: #3182ce; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; transition: background 0.2s; }
     button:hover { background-color: #2b6cb0; }
     #status { margin-top: 15px; font-size: 14px; text-align: center; font-weight: bold; }
@@ -19,7 +22,7 @@
 <body>
 
   <div class="card">
-    <h2>✈️ Buscar Vuelos</h2>
+    <h2>✈️ Buscador & Alertas de Vuelos</h2>
     
     <label for="pat">GitHub Access Token (PAT):</label>
     <input type="password" id="pat" placeholder="ghp_xxxxxxxxxxxx" />
@@ -39,13 +42,17 @@
     <label for="duracion">Días de estadía:</label>
     <input type="text" id="duracion" value="4" />
 
-    <button onclick="ejecutarWorkflow()">🚀 Buscar y Enviar a Telegram</button>
+    <div class="checkbox-container">
+      <input type="checkbox" id="guardar_diario" checked />
+      <label for="guardar_diario"><b>☑️ Guardar como mi alerta diaria automática</b><br><small>Recibirás actualizaciones de este itinerario todos los días a las 7:00 AM</small></label>
+    </div>
+
+    <button onclick="ejecutarWorkflow()">🚀 Buscar Vuelo Ahora</button>
 
     <div id="status"></div>
   </div>
 
   <script>
-    // Recupera automáticamente el token guardado en el navegador para no escribirlo siempre
     document.addEventListener("DOMContentLoaded", () => {
       const savedToken = localStorage.getItem("github_pat");
       if (savedToken) document.getElementById("pat").value = savedToken;
@@ -61,11 +68,10 @@
         return;
       }
 
-      // Guardar token en el almacenamiento local del navegador
       localStorage.setItem("github_pat", token);
 
-      
-      const usuarioGithub = "jeissonquimbayaf-dev"; 
+      // REEMPLAZA CON TU USUARIO REAL DE GITHUB
+      const usuarioGithub = "TU_USUARIO"; 
       const repo = "VueloAutoBotDinamico"; 
       const workflowFile = "main.yml";
 
@@ -78,12 +84,13 @@
           destino: document.getElementById("destino").value,
           fecha_inicio: document.getElementById("fecha_inicio").value,
           fecha_fin: document.getElementById("fecha_fin").value,
-          duracion_dias: document.getElementById("duracion").value
+          duracion_dias: document.getElementById("duracion").value,
+          actualizar_diario: document.getElementById("guardar_diario").checked ? "true" : "false"
         }
       };
 
       statusDiv.style.color = "#3182ce";
-      statusDiv.innerText = "⏳ Solicitando búsqueda...";
+      statusDiv.innerText = "⏳ Enviando parámetros a GitHub...";
 
       try {
         const response = await fetch(url, {
@@ -98,7 +105,7 @@
 
         if (response.status === 204) {
           statusDiv.style.color = "green";
-          statusDiv.innerText = "✅ ¡Búsqueda iniciada! Revisa Telegram en 1-2 minutos.";
+          statusDiv.innerText = "✅ ¡Búsqueda en curso! Revisa Telegram en 1-2 minutos.";
         } else {
           const err = await response.json();
           statusDiv.style.color = "red";
